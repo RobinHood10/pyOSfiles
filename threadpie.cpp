@@ -18,7 +18,6 @@ bool helpDigit(int& pos, std::mutex& qmutex, int& digit)
 	{return false;}
 	pos = digitPos.front();
 	digitPos.pop();
-	digit = computePiDigit(pos);
 	return true;
 }
 
@@ -37,6 +36,7 @@ void getDigit(std::mutex& qmutex, std::mutex& hashmutex)
 		std::cout<<'.';
 		std::cout.flush();
 //		std::cout<<pos;
+		digit = computePiDigit(pos);	//moved from right before return true;
 		hashIt(pos, digit, hashmutex);
 	}
 }
