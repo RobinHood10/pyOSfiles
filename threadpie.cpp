@@ -1,7 +1,3 @@
-//each core will work on a task to compute a single digit
-//sharing a common data structure from which to obtain the tasks
-//also sharing a structure into which results will be placed
-
 #include <queue>
 #include <iostream>
 #include <mutex>
