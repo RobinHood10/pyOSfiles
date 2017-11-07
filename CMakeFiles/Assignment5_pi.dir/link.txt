@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++11 -lpthread -O3     CMakeFiles/Assignment5_pi.dir/threadpie.cpp.o CMakeFiles/Assignment5_pi.dir/ComputePiDigit.cpp.o  -o Assignment5_pi -rdynamic 

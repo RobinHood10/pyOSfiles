@@ -1,0 +1,82 @@
+//each core will work on a task to compute a single digit
+//sharing a common data structure from which to obtain the tasks
+//also sharing a structure into which results will be placed
+
+#include <queue>
+#include <iostream>
+#include <mutex>
+#include <thread>
+#include <cstdlib>
+#include <vector>
+#include <unordered_map>
+#include "ComputePiDigit.hpp"
+
+int THREADS = std::thread::hardware_concurrency();
+std::queue<int> digitPos;
+std::unordered_map<int, int> digitHash;	//<pos, digit>
+
+void helpDigit(int& pos, std::mutex& mutex, int& digit)
+{
+	std::lock_guard<std::mutex> lock(mutex);
+	pos = digitPos.front();
+	digit = computePiDigit(pos+1);
+	digitPos.pop();
+}
+
+void hashIt(int pos, int digit, std::mutex& hashmutex)
+{
+	std::lock_guard<std::mutex> lock(hashmutex);
+	digitHash[pos]=digit;
+}
+
+void getDigit(std::mutex& mutex, std::mutex& hashmutex)
+{
+
+	while(!digitPos.empty())
+	{
+		int pos = -1;
+		std::cout<<'.';
+		std::cout.flush();
+		int digit = -1;
+		helpDigit(pos, mutex, digit);
+		std::cout<<pos;
+		hashIt(pos, digit, hashmutex);
+	}
+}
+
+int main()
+{
+	std::cout<<"Begin "<<THREADS<<" threads\n";
+
+	std::mutex mutex;
+	std::mutex hashmutex;
+
+//	digitHash.reserve(1000);
+
+	for (int i=0;i<1000;i++)
+	{
+		digitPos.push(i);
+	}
+
+	//make a vector of all the threads
+	std::vector<std::thread> threads;
+	for (int i=0;i<THREADS;i++)
+	{
+		threads.push_back(std::thread(getDigit, std::ref(mutex), std::ref (hashmutex)));
+	}
+
+	for (int i=0;i<THREADS;i++)
+	{
+		threads[i].join();	//ends them
+	}
+
+	//then print pi and exit nicely
+	std::cout<<"3.";
+	for(int i=1;i<=1000;i++)
+	{
+		std::cout<<digitHash[i];
+	}
+
+	return 0;
+}
+

@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/pi/Documents/CS3100/Assignment5_pi/ComputePiDigit.hpp
+
+/home/pi/Documents/CS3100/Assignment5_pi/threadpie.cpp
+queue
+-
+iostream
+-
+mutex
+-
+thread
+-
+cstdlib
+-
+vector
+-
+unordered_map
+-
+ComputePiDigit.hpp
+/home/pi/Documents/CS3100/Assignment5_pi/ComputePiDigit.hpp
+
