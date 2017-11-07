@@ -15,12 +15,15 @@ int THREADS = std::thread::hardware_concurrency();
 std::queue<int> digitPos;
 std::unordered_map<int, int> digitHash;	//<pos, digit>
 
-void helpDigit(int& pos, std::mutex& mutex, int& digit)
+bool helpDigit(int& pos, std::mutex& qmutex, int& digit)
 {
-	std::lock_guard<std::mutex> lock(mutex);
+	std::lock_guard<std::mutex> lock(qmutex);
+	if(digitPos.empty())
+	{return false;}
 	pos = digitPos.front();
-	digit = computePiDigit(pos+1);
 	digitPos.pop();
+	digit = computePiDigit(pos);
+	return true;
 }
 
 void hashIt(int pos, int digit, std::mutex& hashmutex)
@@ -29,17 +32,15 @@ void hashIt(int pos, int digit, std::mutex& hashmutex)
 	digitHash[pos]=digit;
 }
 
-void getDigit(std::mutex& mutex, std::mutex& hashmutex)
+void getDigit(std::mutex& qmutex, std::mutex& hashmutex)
 {
-
-	while(!digitPos.empty())
+	int pos = -1;
+	int digit = -1;
+	while(helpDigit(pos, qmutex, digit))
 	{
-		int pos = -1;
 		std::cout<<'.';
 		std::cout.flush();
-		int digit = -1;
-		helpDigit(pos, mutex, digit);
-		std::cout<<pos;
+//		std::cout<<pos;
 		hashIt(pos, digit, hashmutex);
 	}
 }
@@ -48,12 +49,12 @@ int main()
 {
 	std::cout<<"Begin "<<THREADS<<" threads\n";
 
-	std::mutex mutex;
+	std::mutex qmutex;
 	std::mutex hashmutex;
 
 //	digitHash.reserve(1000);
 
-	for (int i=0;i<1000;i++)
+	for (int i=1;i<=1000;i++)
 	{
 		digitPos.push(i);
 	}
@@ -62,7 +63,7 @@ int main()
 	std::vector<std::thread> threads;
 	for (int i=0;i<THREADS;i++)
 	{
-		threads.push_back(std::thread(getDigit, std::ref(mutex), std::ref (hashmutex)));
+		threads.push_back(std::thread(getDigit, std::ref(qmutex), std::ref (hashmutex)));
 	}
 
 	for (int i=0;i<THREADS;i++)
@@ -71,7 +72,7 @@ int main()
 	}
 
 	//then print pi and exit nicely
-	std::cout<<"3.";
+	std::cout<<"\n3.";
 	for(int i=1;i<=1000;i++)
 	{
 		std::cout<<digitHash[i];
